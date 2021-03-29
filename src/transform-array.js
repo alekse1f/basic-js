@@ -1,57 +1,38 @@
 const CustomError = require('../extensions/custom-error')
 
-module.exports = function transform(arrIt) {
-  throw new CustomError('Not implemented');
-    // remove line with error and write your code here
-  function init(arr, i, type) {
-    if (typeof arr[i + type] === 'undefined' || arr[i + type] == '') {
-      return false
-    } else {
-      return true
-    }
+module.exports = function transform(arr) {
+  // throw new CustomError('Not implemented');
+  // remove line with error and write your code here
+  if (!Array.isArray(arr)) {
+    throw Error
   }
-
-
-  if (!Array.isArray(arrIt)) {
-     throw Error
-  }
-
-  let arr = arrIt.slice()
+  let result = []
   for (let i = 0; i < arr.length; i++) {
     switch (arr[i]) {
       case '--discard-next':
-        if (init(arr, i, 1)) {
-          arr[i + 1] = ''
-        }
-        arr[i] = ''
+        // проверка ниже
         break
       case '--discard-prev':
-        if (init(arr, i, -1)) {
-          arr[i - 1] = ''
+        if (i !== 0 && arr[i - 2] !== '--discard-next') {
+          result.pop()
         }
-        arr[i] = ''
         break
       case '--double-next':
-        if (init(arr, i, 1)) {
-          arr[i] = arr[i + 1]
-        } else {
-          arr[i] = ''
+        if (i !== arr.length - 1) {
+          result.push(arr[i + 1])
         }
         break
       case '--double-prev':
-        if (init(arr, i, -1)) {
-          arr[i] = arr[i - 1]
-        } else {
-          arr[i] = ''
+        if (i !== 0 && arr[i - 2] !== '--discard-next') {
+          result.push(arr[i - 1])
+        }
+        break
+      default:
+        if (arr[i - 1] !== '--discard-next') {
+          result.push(arr[i])
         }
         break
     }
   }
-
-  for(let i = arr.length - 1; i >= 0; i--) {
-    if(arr[i] === '') {
-        arr.splice(i, 1);
-    }
-}
-  return arr.filter(Number)
+  return result
 }
